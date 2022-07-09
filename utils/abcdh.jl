@@ -75,7 +75,7 @@ function parse_commandline()
             action = :store_true
             group = "optional"
     end
-    s.usage = "graph_check.jl -n N -d D -c C -x X -q Q -w W -s S -o O [-m] [-h]"
+    s.usage = "julia --project abcdh.jl -n N -d D -c C -x X -q Q -w W -s S [-o O] [-m] [-h] [--stats]"
     return ArgParse.parse_args(s)
 end
 

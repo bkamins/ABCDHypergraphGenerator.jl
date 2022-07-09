@@ -18,7 +18,7 @@ Here is an example session output (assuming you are in `/utils` folder).
 
 ```
 $ julia --project abcdh.jl --help
-graph_check.jl -n N -d D -c C -x X -q Q -w W -s S -o O [-m] [-h]
+julia --project abcdh.jl -n N -d D -c C -x X -q Q -w W -s S [-o O] [-m] [-h] [--stats]
 
 optional arguments:
   -o O        prefix for output file names; the generated file names
