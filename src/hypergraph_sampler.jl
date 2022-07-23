@@ -334,10 +334,12 @@ function config_model(clusters, params, he1)
         end
 
         if bad_multi > 0
-            @info "fixing $bad_multi hyperedges that were multisets"
+            bad_multi_pct = round(100 * bad_multi / length(edges), digits=2)
+            @info "fixing $bad_multi hyperedges ($bad_multi_pct% of total number of hyperedges) that were multisets"
         end
         if bad_dup > 0
-            @info "fixing $bad_dup hyperedges that were duplicated"
+            bad_dup_pct = round(100 * bad_dup / length(edges), digits=2)
+            @info "fixing $bad_dup hyperedges ($bad_dup_pct% of total number of hyperedges) that were duplicated"
         end
 
         shuffle!(bad_edges)

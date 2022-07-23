@@ -68,8 +68,8 @@ $ julia --project abcdh.jl -n 100000 -d 2.5,5,100 -c 1.5,1000,10000 -x 0.5 -q 0.
 [ Info: Moving 1 stumps from community 29 to background graph
 [ Info: Moving 1 stumps from community 35 to background graph
 [ Info: Moving 1 stumps from community 36 to background graph
-[ Info: fixing 291 hyperedges that were multisets
-[ Info: fixing 162 hyperedges that were duplicated
+[ Info: fixing 291 hyperedges (0.07% of total number of hyperedges) that were multisets
+[ Info: fixing 162 hyperedges (0.04% of total number of hyperedges) that were duplicated
 
 [ Info: Degrees
 generated degree distribution
@@ -136,13 +136,13 @@ all(allunique, hyperedges) = true
  NaN  0.0  0.0       0.582357  0.336687
  NaN  0.0  0.0       0.0       0.417269
 
- julia --project abcdh.jl -n 100 -d 2.5,5,20 -c 1.5,10,30 -x 0.3 -q 0.0,0.4,0.3,0.2,0.1 -w :linear -s 1234 --stats
+$ julia --project abcdh.jl -n 100 -d 2.5,5,20 -c 1.5,10,30 -x 0.3 -q 0.0,0.4,0.3,0.2,0.1 -w :linear -s 1234 --stats
 [ Info: distribution of hyperedge proportions does not add up to 1. Fixing.
 [ Info: Moving 1 stumps from community 2 to background graph
 [ Info: Moving 1 stumps from community 5 to background graph
 [ Info: added degree to the following nodes due to parity issues: [47]
-[ Info: fixing 29 hyperedges that were multisets
-[ Info: fixing 11 hyperedges that were duplicated
+[ Info: fixing 29 hyperedges (9.15% of total number of hyperedges) that were multisets
+[ Info: fixing 11 hyperedges (3.47% of total number of hyperedges) that were duplicated
 [ Info: skipping saving generated graph
 
 [ Info: Degrees
