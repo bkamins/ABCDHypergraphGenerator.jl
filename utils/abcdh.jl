@@ -84,7 +84,7 @@ function main()
 
     seed = tryparse(Int, parsed_args["s"])
     isnothing(seed) && throw(ArgumentError("seed must be an integer"))
-    Random.seed!(1234)
+    Random.seed!(seed)
 
     n = tryparse(Int, parsed_args["n"])
     isnothing(n) && throw(ArgumentError("Number of vertices must be an integer"))
@@ -127,7 +127,7 @@ function main()
     ξ = tryparse(Float64, parsed_args["x"])
     isnothing(ξ) && throw(ArgumentError("ξ must be a number"))
     0 <= ξ <= 1 || throw(ArgumentError("ξ must be in [0, 1]"))
-coms
+
     qs = parsed_args["q"]
     qss = split(qs, ",")
 
@@ -220,6 +220,8 @@ coms
     else
         @info "skipping saving generated graph"
     end
+
+exit()
 
     if parsed_args["stats"]
         println()
