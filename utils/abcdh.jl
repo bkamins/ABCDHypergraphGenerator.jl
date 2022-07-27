@@ -221,8 +221,6 @@ function main()
         @info "skipping saving generated graph"
     end
 
-exit()
-
     if parsed_args["stats"]
         println()
         @info "Degrees"
