@@ -46,12 +46,12 @@ function parse_commandline()
             required = true
             group = "REQ"
         "-w"
-            help = "either one of values: ':pure', ':linear', ':equal' or a file " *
+            help = "either one of values: ':strict', ':linear', ':majority' or a file " *
                    "name with weights for w_cd where in i-th line are comma separated " *
                    "weights for hyperedge of size i+2 ranging from floor(i+2,2)+1 to i; " *
-                   "the :pure value assumes that only c=d weight is non zero, " *
+                   "the :strict value assumes that only c=d weight is non zero, " *
                    "the :linear value assumes weight equal to c, " *
-                   "the :equal value assumes all weights are 1"
+                   "the :majority value assumes all weights are 1"
             required = true
             group = "REQ"
         "-s"
@@ -140,7 +140,7 @@ function main()
 
     w = zeros(Float64, length(q), length(q))
 
-    if ws == ":pure"
+    if ws == ":strict"
         for d in 1:length(q)
             w[d, d] = 1.0
         end
@@ -151,7 +151,7 @@ function main()
             end
             w[:, d] ./= sum(w[:, d])
         end
-    elseif ws == ":equal"
+    elseif ws == ":majority"
         for d in 1:length(q)
             for c in div(d, 2)+1:d
                 w[c, d] = 1.0 / (d-div(d, 2))

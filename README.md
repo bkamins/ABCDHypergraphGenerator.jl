@@ -43,12 +43,12 @@ required arguments:
               of sizes from 1 to k or a file name with such a sequence
               in the same format (if a single number is passed it is
               considered to be a filename)
-  -w W        either one of values: ':pure', ':linear', ':equal' or a
+  -w W        either one of values: ':strict', ':linear', ':majority' or a
               file name with weights for w_cd where in i-th line are
               comma separated weights for hyperedge of size i+2
-              ranging from floor(i+2,2)+1 to i; the :pure value
+              ranging from floor(i+2,2)+1 to i; the :strict value
               assumes that only c=d weight is non zero, the :linear
-              value assumes weight equal to c, the :equal value
+              value assumes weight equal to c, the :majority value
               assumes all weights are 1
   -s S        seed value for generator
 
