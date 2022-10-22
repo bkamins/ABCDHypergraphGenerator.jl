@@ -207,7 +207,6 @@ function config_model(clusters, params, he1)
             @assert sum(d * mcd[c, d] for d in 2:L for c in d:-1:div(d, 2)+1) == pj
 
             pjc = sum(c * mcd[c, d] for d in 2:L for c in d:-1:div(d, 2)+1)
-            # TODO - fixe the case when pj is 0
             yc = Float64.(params.y[cluster_idxs] * (big(pjc) / big(pj))) # this is to improve rounding behavior
             yc_base = floor.(Int, yc)
             yc_rem = yc .- yc_base
