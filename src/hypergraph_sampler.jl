@@ -1,3 +1,13 @@
+
+# Compute RHS in equation (3) exactly using high precision
+# But later memoize it store as Float64 as it is enough in practice
+
+const RHS_CACHE = Dict{Tuple{Int, Int, Int, Int}, Float64}()
+
+get_rhs(n, cj, d, c) = get!(RHS_CACHE, (n, cj, d, c)) do
+    Float64(binomial(big(cj-1), c-1) * binomial(big(n-cj), d-c))
+end
+
 """
     ABCDHParams
 
@@ -97,21 +107,21 @@ function populate_clusters(params::ABCDHParams)
         for _ in 1:10
             pos = sample(wts_all)
             choice_allowed = true
-                cj = big(params.s[pos])
+                cj = params.s[pos]
                 for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
                     xi = sum(div(d, 2)+1:c) do f
                         params.y[i] *
-                        params.q[d] *
+                        (params.q[d] *
                         params.wcd[f, d] *
-                        binomial(big(d-f), big(c-f)) *
+                        binomial(d-f, c-f) *
                         (cj/n)^(c-f) *
-                        (1-cj/n)^(d-c) +
+                        (1-cj/n)^(d-c)) +
                         params.z[i] *
-                        params.q[d] * binomial(big(d-1), big(c-1)) *
+                        (params.q[d] * binomial(d-1, c-1) *
                         (cj/n)^(c-1) *
-                        (1-cj/n)^(d-c)
+                        (1-cj/n)^(d-c))
                     end
-                    if xi > binomial(cj-1, c-1) * binomial(n-cj, d-c)
+                    if xi > get_rhs(n, cj, d, c)
                         choice_allowed = false
                         break
                     end
@@ -124,21 +134,21 @@ function populate_clusters(params::ABCDHParams)
         if loc == -1
             community_allowed .= true
             for j in 1:length(slots)
-                cj = big(params.s[j])
+                cj = params.s[j]
                 for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
                     xi = sum(div(d, 2)+1:c) do f
                         params.y[i] *
-                        params.q[d] *
+                        (params.q[d] *
                         params.wcd[f, d] *
-                        binomial(big(d-f), big(c-f)) *
+                        binomial(d-f, c-f) *
                         (cj/n)^(c-f) *
-                        (1-cj/n)^(d-c) +
+                        (1-cj/n)^(d-c)) +
                         params.z[i] *
-                        params.q[d] * binomial(big(d-1), big(c-1)) *
+                        (params.q[d] * binomial(d-1, c-1) *
                         (cj/n)^(c-1) *
-                        (1-cj/n)^(d-c)
+                        (1-cj/n)^(d-c))
                     end
-                    if xi > binomial(cj-1, c-1) * binomial(n-cj, d-c)
+                    if xi > get_rhs(n, cj, d, c)
                         community_allowed[j] = false
                         break
                     end
@@ -207,7 +217,7 @@ function config_model(clusters, params, he1)
             @assert sum(d * mcd[c, d] for d in 2:L for c in d:-1:div(d, 2)+1) == pj
 
             pjc = sum(c * mcd[c, d] for d in 2:L for c in d:-1:div(d, 2)+1)
-            yc = Float64.(params.y[cluster_idxs] * (big(pjc) / big(pj))) # this is to improve rounding behavior
+            yc = params.y[cluster_idxs] * pjc / pj
             yc_base = floor.(Int, yc)
             yc_rem = yc .- yc_base
             tail_size = pjc - sum(yc_base)

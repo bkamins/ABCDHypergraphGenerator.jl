@@ -3,9 +3,6 @@ using ArgParse
 using DataFrames
 using StatsBase
 
-include("../src/pl_sampler.jl")
-include("../src/hypergraph_sampler.jl")
-
 # example call (assuming that the code is run in /utils folder):
 # julia --project abcdh.jl -n 100000 -d 2.5,5,100 -c 1.5,1000,10000 -x 0.5 -q 0.0,0.4,0.3,0.2,0.1 -w :linear -s 1234 -o result --stats
 #
