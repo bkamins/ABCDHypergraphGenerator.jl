@@ -20,6 +20,22 @@ get_lhs(params, n, cj, d, c) = get!(LHS_CACHE, (n, cj, d, c)) do
     end
 end
 
+const COMB_ALLOWED_CACHE = Dict{Tuple{Int, Int, Int}, Bool}()
+
+get_comballowed(cj, yi, zi, params, n) = get!(COMB_ALLOWED_CACHE, (cj, yi, zi)) do
+    for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
+        xi = yi * get_lhs(params, n, cj, d, c) +
+            zi *
+            (params.q[d] * binomial(d-1, c-1) *
+            (cj/n)^(c-1) *
+            (1-cj/n)^(d-c))
+        if xi > get_rhs(n, cj, d, c)
+            return false
+        end
+    end
+    return true
+end
+
 """
     ABCDHParams
 
@@ -112,6 +128,7 @@ function populate_clusters(params::ABCDHParams)
     # Note that populate_clusters is not thread safe
     empty!(RHS_CACHE)
     empty!(LHS_CACHE)
+    empty!(COMB_ALLOWED_CACHE)
     n = length(params.w)
     clusters = fill(-1, n)
     slots = copy(params.s)
@@ -121,19 +138,8 @@ function populate_clusters(params::ABCDHParams)
         wts_all = Weights(slots)
         for _ in 1:10
             pos = sample(wts_all)
-            choice_allowed = true
-                cj = params.s[pos]
-                for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
-                    xi = params.y[i] * get_lhs(params, n, cj, d, c) +
-                        params.z[i] *
-                        (params.q[d] * binomial(d-1, c-1) *
-                        (cj/n)^(c-1) *
-                        (1-cj/n)^(d-c))
-                    if xi > get_rhs(n, cj, d, c)
-                        choice_allowed = false
-                        break
-                    end
-                end
+            cj = params.s[pos]
+            choice_allowed = get_comballowed(cj, params.y[i], params.z[i], params, n)
             if choice_allowed
                 loc = pos
                 break
@@ -143,17 +149,7 @@ function populate_clusters(params::ABCDHParams)
             community_allowed .= true
             for j in 1:length(slots)
                 cj = params.s[j]
-                for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
-                    xi = params.y[i] * get_lhs(params, n, cj, d, c) +
-                        params.z[i] *
-                        (params.q[d] * binomial(d-1, c-1) *
-                        (cj/n)^(c-1) *
-                        (1-cj/n)^(d-c))
-                    if xi > get_rhs(n, cj, d, c)
-                        community_allowed[j] = false
-                        break
-                    end
-                end
+                community_allowed[j] = get_comballowed(cj, params.y[i], params.z[i], params, n)
                 comm_idxs = findall(community_allowed)
                 wts = slots[comm_idxs]
                 sum(wts) == 0 && throw(ArgumentError("hypergraph is too tight. Failed to find community for node $i"))
