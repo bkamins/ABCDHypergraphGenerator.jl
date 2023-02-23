@@ -8,6 +8,18 @@ get_rhs(n, cj, d, c) = get!(RHS_CACHE, (n, cj, d, c)) do
     Float64(binomial(big(cj-1), c-1) * binomial(big(n-cj), d-c))
 end
 
+const LHS_CACHE = Dict{Tuple{Int, Int, Int, Int}, Float64}()
+
+get_lhs(params, n, cj, d, c) = get!(LHS_CACHE, (n, cj, d, c)) do
+    sum(div(d, 2)+1:c) do f
+        params.q[d] *
+        params.wcd[f, d] *
+        binomial(d-f, c-f) *
+        (cj/n)^(c-f) *
+        (1-cj/n)^(d-c)
+    end
+end
+
 """
     ABCDHParams
 
@@ -97,6 +109,9 @@ function generate_1hyperedges(params::ABCDHParams)
 end
 
 function populate_clusters(params::ABCDHParams)
+    # Note that populate_clusters is not thread safe
+    empty!(RHS_CACHE)
+    empty!(LHS_CACHE)
     n = length(params.w)
     clusters = fill(-1, n)
     slots = copy(params.s)
@@ -109,18 +124,11 @@ function populate_clusters(params::ABCDHParams)
             choice_allowed = true
                 cj = params.s[pos]
                 for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
-                    xi = sum(div(d, 2)+1:c) do f
-                        params.y[i] *
-                        (params.q[d] *
-                        params.wcd[f, d] *
-                        binomial(d-f, c-f) *
-                        (cj/n)^(c-f) *
-                        (1-cj/n)^(d-c)) +
+                    xi = params.y[i] * get_lhs(params, n, cj, d, c) +
                         params.z[i] *
                         (params.q[d] * binomial(d-1, c-1) *
                         (cj/n)^(c-1) *
                         (1-cj/n)^(d-c))
-                    end
                     if xi > get_rhs(n, cj, d, c)
                         choice_allowed = false
                         break
@@ -136,18 +144,11 @@ function populate_clusters(params::ABCDHParams)
             for j in 1:length(slots)
                 cj = params.s[j]
                 for d in 2:size(params.wcd, 2), c in div(d, 2)+1:d
-                    xi = sum(div(d, 2)+1:c) do f
-                        params.y[i] *
-                        (params.q[d] *
-                        params.wcd[f, d] *
-                        binomial(d-f, c-f) *
-                        (cj/n)^(c-f) *
-                        (1-cj/n)^(d-c)) +
+                    xi = params.y[i] * get_lhs(params, n, cj, d, c) +
                         params.z[i] *
                         (params.q[d] * binomial(d-1, c-1) *
                         (cj/n)^(c-1) *
                         (1-cj/n)^(d-c))
-                    end
                     if xi > get_rhs(n, cj, d, c)
                         community_allowed[j] = false
                         break
