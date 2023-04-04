@@ -1,3 +1,6 @@
+using Pkg
+Pkg.instantiate()
+
 using Random
 using ArgParse
 using DataFrames
