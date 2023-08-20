@@ -82,6 +82,8 @@ end
 function main()
     parsed_args = parse_commandline()
 
+    # test
+    
     seed = tryparse(Int, parsed_args["s"])
     isnothing(seed) && throw(ArgumentError("seed must be an integer"))
     Random.seed!(seed)
