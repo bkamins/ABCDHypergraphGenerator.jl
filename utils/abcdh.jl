@@ -79,66 +79,51 @@ function parse_commandline()
     return ArgParse.parse_args(s)
 end
 
-function main()
-    parsed_args = parse_commandline()
+function main(n, dss, css, x, q, ws, seed; m=false, stats=false, prefix=nothing)
 
-    # test
-    
-    seed = tryparse(Int, parsed_args["s"])
+    seed = Int(seed)
     isnothing(seed) && throw(ArgumentError("seed must be an integer"))
     Random.seed!(seed)
 
-    n = tryparse(Int, parsed_args["n"])
+    n = Int(n)
     isnothing(n) && throw(ArgumentError("Number of vertices must be an integer"))
     n > 0 || throw(ArgumentError("Number of vertices must be positive"))
-
-    ds = parsed_args["d"]
-    dss = split(ds, ',')
-    if length(dss) == 3
-        γ = tryparse(Float64, dss[1])
-        isnothing(γ) && throw(ArgumentError("γ must be a number"))
-        2 < γ < 3 || throw(ArgumentError("γ must be in (2, 3)"))
-        δ = tryparse(Int, dss[2])
-        isnothing(δ) && throw(ArgumentError("Number of vertices must be an integer"))
-        D = tryparse(Int, dss[3])
-        isnothing(D) && throw(ArgumentError("Number of vertices must be an integer"))
-        0 < δ <= D || throw(ArgumentError("Condition 0 < d <= D not met"))
-        degs = sample_degrees(γ, δ, D, n)
-    else
-        degs = parse.(Int, readlines(ds))
+    
+    if length(dss) !== 3 
+        throw(ArgumentError("dss argument should be a tuple of 3"))
     end
 
-    cs = parsed_args["c"]
-    css = split(cs, ',')
-    if length(css) == 3
-        β = tryparse(Float64, css[1])
-        isnothing(β) && throw(ArgumentError("β must be a number"))
-        1 < β < 2 || throw(ArgumentError("β must be in (1, 2)"))
-        s = tryparse(Int, css[2])
-        isnothing(s) && throw(ArgumentError("Number of vertices must be an integer"))
-        S = tryparse(Int, css[3])
-        isnothing(S) && throw(ArgumentError("Number of vertices must be an integer"))
-        δ <= s <= S || throw(ArgumentError("Condition δ <= s <= S not met"))
-        coms = sample_communities(β, s, S, n, 1000)
-    else
-        coms = parse.(Int, readlines(cs))
+    γ = Float64(dss[1])
+    isnothing(γ) && throw(ArgumentError("γ must be a number"))
+    2 < γ < 3 || throw(ArgumentError("γ must be in (2, 3)"))
+    δ = Int(dss[2])
+    isnothing(δ) && throw(ArgumentError("Number of vertices must be an integer"))
+    D = Int(dss[3])
+    isnothing(D) && throw(ArgumentError("Number of vertices must be an integer"))
+    0 < δ <= D || throw(ArgumentError("Condition 0 < d <= D not met"))
+    degs = sample_degrees(γ, δ, D, n)
+
+    if length(css) !== 3 
+        throw(ArgumentError("css argument should be a tuple of 3"))
     end
+
+    β = Float64(css[1])
+    isnothing(β) && throw(ArgumentError("β must be a number"))
+    1 < β < 2 || throw(ArgumentError("β must be in (1, 2)"))
+    s = Int(css[2])
+    isnothing(s) && throw(ArgumentError("Number of vertices must be an integer"))
+    S = Int(css[3])
+    isnothing(S) && throw(ArgumentError("Number of vertices must be an integer"))
+    δ <= s <= S || throw(ArgumentError("Condition δ <= s <= S not met"))
+    coms = sample_communities(β, s, S, n, 1000)
 
     n != sum(coms) && throw(ArgumentError("number of vertices does not match the sum of community sizes"))
 
-    ξ = tryparse(Float64, parsed_args["x"])
+    ξ = Float64(x)
     isnothing(ξ) && throw(ArgumentError("ξ must be a number"))
     0 <= ξ <= 1 || throw(ArgumentError("ξ must be in [0, 1]"))
 
-    qs = parsed_args["q"]
-    qss = split(qs, ",")
-
-    if length(qss) == 1
-        qss = split(readline(qs), ",")
-    end
-    q = parse.(Float64, qss)
-
-    ws = parsed_args["w"]
+    q = Float64.(q)
 
     w = zeros(Float64, length(q), length(q))
 
@@ -159,38 +144,12 @@ function main()
                 w[c, d] = 1.0 / (d-div(d, 2))
             end
         end
-    else
-        w[1,1] = 1.0
-        w[2,2] = 1.0
-        if length(q) < 3
-            @info "d less than 3; ignoring source file as w[c,d] is determined"
-        else
-            wlines = readlines(ws)
-            if length(wlines) != length(q) - 2
-                throw(ArgumentError("wrong number of lines in -w W file"))
-            end
-
-            let d = 2
-                for line in wlines
-                    d += 1
-                    wd = parse.(Float64, split.(line, ','))
-                    if length(wd) != d - div(d, 2)
-                        throw(ArgumentError("wrong number of weights for d=$d"))
-                    end
-                    w[div(d,2)+1:d, d] = wd
-                end
-            end
-        end
     end
-
-    m = parsed_args["m"]
 
     hparams = ABCDHParams(degs, coms, ξ, q, w, !m, 100)
     hyperedges, clusters = gen_hypergraph(hparams)
 
-    if parsed_args["o"] !== nothing
-        prefix = parsed_args["o"]
-
+    if prefix
         degree_out = "$(prefix)_deg.txt"
         community_out = "$(prefix)_comm.txt"
         assignment_out = "$(prefix)_assign.txt"
@@ -223,7 +182,7 @@ function main()
         @info "skipping saving generated graph"
     end
 
-    if parsed_args["stats"]
+    if stats
         println()
         @info "Degrees"
         dg = zeros(Int, length(degs))
@@ -312,5 +271,3 @@ function classify_cluster(clu)
         return (0, 0, length(clu))
     end
 end
-
-main()
