@@ -145,7 +145,7 @@ function main(n, dss, css, x, q, ws, seed; m=false, stats=false, prefix=nothing)
     hparams = ABCDHParams(degs, coms, ξ, q, w, !m, 100)
     hyperedges, clusters = gen_hypergraph(hparams)
 
-    if prefix
+    if prefix !== nothing
         degree_out = "$(prefix)_deg.txt"
         community_out = "$(prefix)_comm.txt"
         assignment_out = "$(prefix)_assign.txt"
@@ -254,6 +254,8 @@ function main(n, dss, css, x, q, ws, seed; m=false, stats=false, prefix=nothing)
         display(w_emp)
         println()
     end
+
+    return hyperedges, clusters
 end
 
 function classify_cluster(clu)
