@@ -89,33 +89,29 @@ function main(n, dss, css, x, q, ws, seed; m=false, stats=false, prefix=nothing)
     isnothing(n) && throw(ArgumentError("Number of vertices must be an integer"))
     n > 0 || throw(ArgumentError("Number of vertices must be positive"))
     
-    if length(dss) !== 3 
-        throw(ArgumentError("dss argument should be a tuple of 3"))
+    if length(dss) == 3 
+        γ = Float64(dss[1])
+        isnothing(γ) && throw(ArgumentError("γ must be a number"))
+        2 < γ < 3 || throw(ArgumentError("γ must be in (2, 3)"))
+        δ = Int(dss[2])
+        isnothing(δ) && throw(ArgumentError("Number of vertices must be an integer"))
+        D = Int(dss[3])
+        isnothing(D) && throw(ArgumentError("Number of vertices must be an integer"))
+        0 < δ <= D || throw(ArgumentError("Condition 0 < d <= D not met"))
+        degs = sample_degrees(γ, δ, D, n)
     end
 
-    γ = Float64(dss[1])
-    isnothing(γ) && throw(ArgumentError("γ must be a number"))
-    2 < γ < 3 || throw(ArgumentError("γ must be in (2, 3)"))
-    δ = Int(dss[2])
-    isnothing(δ) && throw(ArgumentError("Number of vertices must be an integer"))
-    D = Int(dss[3])
-    isnothing(D) && throw(ArgumentError("Number of vertices must be an integer"))
-    0 < δ <= D || throw(ArgumentError("Condition 0 < d <= D not met"))
-    degs = sample_degrees(γ, δ, D, n)
-
-    if length(css) !== 3 
-        throw(ArgumentError("css argument should be a tuple of 3"))
+    if length(css) == 3 
+        β = Float64(css[1])
+        isnothing(β) && throw(ArgumentError("β must be a number"))
+        1 < β < 2 || throw(ArgumentError("β must be in (1, 2)"))
+        s = Int(css[2])
+        isnothing(s) && throw(ArgumentError("Number of vertices must be an integer"))
+        S = Int(css[3])
+        isnothing(S) && throw(ArgumentError("Number of vertices must be an integer"))
+        δ <= s <= S || throw(ArgumentError("Condition δ <= s <= S not met"))
+        coms = sample_communities(β, s, S, n, 1000)
     end
-
-    β = Float64(css[1])
-    isnothing(β) && throw(ArgumentError("β must be a number"))
-    1 < β < 2 || throw(ArgumentError("β must be in (1, 2)"))
-    s = Int(css[2])
-    isnothing(s) && throw(ArgumentError("Number of vertices must be an integer"))
-    S = Int(css[3])
-    isnothing(S) && throw(ArgumentError("Number of vertices must be an integer"))
-    δ <= s <= S || throw(ArgumentError("Condition δ <= s <= S not met"))
-    coms = sample_communities(β, s, S, n, 1000)
 
     n != sum(coms) && throw(ArgumentError("number of vertices does not match the sum of community sizes"))
 
