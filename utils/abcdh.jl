@@ -190,11 +190,24 @@ function main()
         prefix = parsed_args["o"]
 
         degree_out = "$(prefix)_deg.txt"
+        degree_out_desired = "$(prefix)_deg_desired.txt"
         community_out = "$(prefix)_comm.txt"
         assignment_out = "$(prefix)_assign.txt"
         hyperedge_out = "$(prefix)_he.txt"
 
         open(degree_out, "w") do io
+            dg = zeros(Int, length(degs))
+            for he in hyperedges
+                for v in he
+                    dg[v] += 1
+                end
+            end
+            for d in dg
+                println(io, d)
+            end
+        end
+
+        open(degree_out_desired, "w") do io
             for d in degs
                 println(io, d)
             end
