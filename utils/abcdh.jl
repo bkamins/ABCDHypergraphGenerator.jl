@@ -171,7 +171,7 @@ function main()
             let d = 2
                 for line in wlines
                     d += 1
-                    wd = parse.(Float64, split.(line, ','))
+                    wd = parse.(Float64, split(line, ','))
                     if length(wd) != d - div(d, 2)
                         throw(ArgumentError("wrong number of weights for d=$d"))
                     end
