@@ -1,6 +1,15 @@
+name = "ABCDHypergraphGenerator"
+uuid = "5511a52e-cd54-480d-8a91-67a5490c1428"
+version = "0.1.0"
+authors = ["Bogumił Kamiński, Paweł Prałat, François Théberge"]
+
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[compat]
+StatsBase = "0.32, 0.33, 0.34"
+julia = "1"

@@ -304,3 +304,14 @@ The session shows you:
 For steps 3 and 4 results are not saved to disk.
 
 Note that statstics generation with `--stats` option can be time consuming for large hypergraphs.
+
+### Julia API
+
+The package does not export functions and types. The public API the following:
+* `ABCDGraphGenerator.ABCDHParams`: type holding information about sampled degrees,
+  sampled cluster sizes and required mode of ABCDH graph generation
+* `ABCDGraphGenerator.gen_graph`: ABCDH graph generator that uses `ABCDHParams`
+  specification
+* `ABCDGraphGenerator.sample_degrees`: sample degrees of vertices following power law
+* `ABCDGraphGenerator.sample_communities`: sample community sizes following power law
+* `ABCDGraphGenerator.get_ev`: get expected value of truncated discrete power law distribution
